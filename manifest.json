@@ -1,6 +1,6 @@
 {
-  "name": "SIVERA — Sistem Inventaris Ruangan",
-  "short_name": "SIVERA",
+  "name": "Sivera — Sistem Inventaris Ruangan",
+  "short_name": "Sivera",
   "description": "Aplikasi pencatatan dan pengelolaan inventaris barang berdasarkan ruangan. Dibuat oleh The Next Horizon.",
   "start_url": "./index.html",
   "scope": "./",
