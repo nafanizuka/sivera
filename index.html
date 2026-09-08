@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>SIVERA — Sistem Inventaris Ruangan</title>
+  <meta name="description" content="SIVERA — Aplikasi pencatatan dan pengelolaan inventaris barang berdasarkan ruangan, dibuat oleh The Next Horizon." />
+  <meta name="theme-color" content="#050505" />
+
+  <link rel="manifest" href="manifest.json" />
+  <link rel="icon" href="icons/icon-192.png" />
+  <link rel="apple-touch-icon" href="icons/icon-180-apple.png" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,wght@0,200..800;1,200..800&family=Space+Grotesk:wght@400;500;600&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+
+  <!-- Splash screen kini punya file CSS sendiri, terpisah dari style.css -->
+  <link rel="stylesheet" href="splash.css" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- ============================= -->
+  <!-- SPLASH SCREEN -->
+  <!-- ============================= -->
+  <div id="splash-screen" role="status" aria-label="Memuat aplikasi SIVERA">
+    <div class="splash__glow splash__glow--a" aria-hidden="true"></div>
+    <div class="splash__glow splash__glow--b" aria-hidden="true"></div>
+    <div class="splash__grid" aria-hidden="true"></div>
+
+    <div class="splash__content">
+      <span class="splash__tag"><span class="splash__tag-dot" aria-hidden="true"></span>Memuat Sistem</span>
+      <img src="icons/icon-192.png" alt="Logo SIVERA" class="splash__logo" />
+      <h1 class="splash__title">SIV<em>ERA</em></h1>
+      <p class="splash__subtitle">Sistem Inventaris Ruangan</p>
+      <div class="splash__loader" aria-hidden="true">
+        <span></span><span></span><span></span>
+      </div>
+      <p class="splash__brand">by The Next Horizon</p>
+    </div>
+  </div>
+
+  <!-- ============================= -->
+  <!-- APP SHELL -->
+  <!-- ============================= -->
+  <div id="app" class="app" hidden>
+
+    <!-- NAVBAR (top, semua ukuran layar) -->
+    <header class="navbar">
+      <button id="sidebar-toggle" class="navbar__menu-btn" aria-label="Buka menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+      <div class="navbar__brand">
+        <img src="icons/icon-192.png" alt="" class="navbar__logo" />
+        <span>SIVERA</span>
+      </div>
+      <button id="theme-toggle" class="navbar__theme-btn" aria-label="Ganti tema gelap/terang" title="Ganti tema">
+        <span id="theme-icon" aria-hidden="true">🌙</span>
+      </button>
+    </header>
+
+    <div class="layout">
+      <!-- SIDEBAR (desktop) -->
+      <nav id="sidebar" class="sidebar" aria-label="Navigasi utama">
+        <button class="sidebar__link is-active" data-view="dashboard">
+          <span class="sidebar__icon" aria-hidden="true">🏠</span> Dashboard
+        </button>
+        <button class="sidebar__link" data-view="inventory">
+          <span class="sidebar__icon" aria-hidden="true">📦</span> Daftar Inventaris
+        </button>
+        <button class="sidebar__link" data-view="add">
+          <span class="sidebar__icon" aria-hidden="true">➕</span> Tambah Inventaris
+        </button>
+        <div class="sidebar__divider"></div>
+        <button class="sidebar__link" id="export-btn">
+          <span class="sidebar__icon" aria-hidden="true">⬇️</span> Export Data
+        </button>
+        <button class="sidebar__link" id="import-btn">
+          <span class="sidebar__icon" aria-hidden="true">⬆️</span> Import Data
+        </button>
+        <input type="file" id="import-file-input" accept="application/json" hidden />
+
+        <div class="sidebar__credit">
+          <p class="sidebar__credit-brand">The Next Horizon Inc.</p>
+          <p class="sidebar__credit-label">Programmer</p>
+          <ol class="sidebar__credit-list">
+            <li>Naf'an Falakil Ahyar <span>/ XII RPL 5 / 30</span></li>
+            <li>Muhammad Taqiyuddin Al-Fatih <span>/ XII RPL 5 / 29</span></li>
+          </ol>
+        </div>
+      </nav>
+      <div id="sidebar-overlay" class="sidebar-overlay" hidden></div>
+
+      <!-- MAIN CONTENT -->
+      <main class="main">
+
+        <!-- ===== VIEW: DASHBOARD ===== -->
+        <section id="view-dashboard" class="view">
+          <h2 class="view__title">Dashboard</h2>
+          <p class="view__subtitle">Ringkasan kondisi inventaris seluruh ruangan.</p>
+
+          <div class="stats-grid">
+            <div class="stat-card stat-card--primary">
+              <div class="stat-card__icon">📦</div>
+              <span class="stat-card__label">Total Barang</span>
+              <span class="stat-card__value" id="stat-total">0</span>
+            </div>
+            <div class="stat-card stat-card--success">
+              <div class="stat-card__icon">✅</div>
+              <span class="stat-card__label">Kondisi Baik</span>
+              <span class="stat-card__value" id="stat-baik">0</span>
+            </div>
+            <div class="stat-card stat-card--warning">
+              <div class="stat-card__icon">⚠️</div>
+              <span class="stat-card__label">Rusak Ringan</span>
+              <span class="stat-card__value" id="stat-rusak-ringan">0</span>
+            </div>
+            <div class="stat-card stat-card--danger">
+              <div class="stat-card__icon">🛑</div>
+              <span class="stat-card__label">Rusak Berat</span>
+              <span class="stat-card__value" id="stat-rusak-berat">0</span>
+            </div>
+          </div>
+
+          <div id="stats-chart-wrapper" class="chart-card">
+            <h3 class="chart-card__title">Distribusi Kondisi Barang</h3>
+            <div id="stats-chart" class="chart-bars" aria-hidden="true"></div>
+          </div>
+        </section>
+
+        <!-- ===== VIEW: DAFTAR INVENTARIS ===== -->
+        <section id="view-inventory" class="view" hidden>
+          <h2 class="view__title">Daftar Inventaris</h2>
+
+          <div class="toolbar">
+            <div class="search-bar">
+              <span class="search-bar__icon" aria-hidden="true">🔍</span>
+              <input
+                type="search"
+                id="search-input"
+                placeholder="Cari nama barang atau kode inventaris..."
+                aria-label="Cari barang"
+              />
+            </div>
+            <div class="filter-group">
+              <select id="filter-room" aria-label="Filter ruangan">
+                <option value="all">Semua Ruangan</option>
+              </select>
+              <select id="filter-condition" aria-label="Filter kondisi">
+                <option value="all">Semua Kondisi</option>
+                <option value="Baik">Baik</option>
+                <option value="Rusak Ringan">Rusak Ringan</option>
+                <option value="Rusak Berat">Rusak Berat</option>
+              </select>
+            </div>
+          </div>
+
+          <div id="inventory-list" class="inventory-grid" aria-live="polite"></div>
+          <p id="inventory-empty" class="empty-state" hidden>Belum ada data inventaris.</p>
+        </section>
+
+        <!-- ===== VIEW: TAMBAH / EDIT INVENTARIS ===== -->
+        <section id="view-add" class="view" hidden>
+          <h2 class="view__title" id="form-title">Tambah Inventaris</h2>
+          <p class="view__subtitle">Lengkapi form berikut untuk mencatat barang baru.</p>
+
+          <form id="inventory-form" class="form" novalidate>
+            <input type="hidden" id="field-id" />
+
+            <div class="form-group">
+              <label for="field-nama">Nama Barang</label>
+              <input type="text" id="field-nama" name="namaBarang" autocomplete="off" />
+              <span class="form-error" id="error-nama"></span>
+            </div>
+
+            <div class="form-group">
+              <label for="field-kode">Kode Inventaris</label>
+              <input type="text" id="field-kode" name="kodeInventaris" autocomplete="off" placeholder="Contoh: LAB-001" />
+              <span class="form-error" id="error-kode"></span>
+            </div>
+
+            <div class="form-group">
+              <label for="field-ruangan">Nama Ruangan</label>
+              <input list="room-options" type="text" id="field-ruangan" name="ruangan" autocomplete="off" placeholder="Pilih atau ketik ruangan" />
+              <datalist id="room-options"></datalist>
+              <span class="form-error" id="error-ruangan"></span>
+            </div>
+
+            <div class="form-group">
+              <label for="field-jumlah">Jumlah Barang</label>
+              <input type="number" id="field-jumlah" name="jumlah" min="1" step="1" inputmode="numeric" />
+              <span class="form-error" id="error-jumlah"></span>
+            </div>
+
+            <div class="form-group">
+              <label for="field-kondisi">Kondisi Barang</label>
+              <select id="field-kondisi" name="kondisi">
+                <option value="">-- Pilih Kondisi --</option>
+                <option value="Baik">Baik</option>
+                <option value="Rusak Ringan">Rusak Ringan</option>
+                <option value="Rusak Berat">Rusak Berat</option>
+              </select>
+              <span class="form-error" id="error-kondisi"></span>
+            </div>
+
+            <div class="form-group">
+              <label for="field-foto">Foto Kondisi Barang</label>
+              <div class="photo-upload" id="photo-dropzone" tabindex="0" role="button" aria-label="Unggah foto kondisi barang">
+                <input type="file" id="field-foto" name="foto" accept="image/*" hidden />
+
+                <div class="photo-upload__preview" id="photo-preview" hidden>
+                  <img id="photo-preview-img" alt="Pratinjau foto kondisi barang" />
+                  <button type="button" class="photo-upload__remove" id="photo-remove-btn" aria-label="Hapus foto">✕</button>
+                </div>
+
+                <div class="photo-upload__placeholder" id="photo-placeholder">
+                  <span class="photo-upload__icon" aria-hidden="true">📷</span>
+                  <span class="photo-upload__text">Klik untuk unggah foto</span>
+                  <span class="photo-upload__hint">JPG / PNG, otomatis dikompres</span>
+                </div>
+              </div>
+              <span class="form-error" id="error-foto"></span>
+            </div>
+
+            <div class="form-actions">
+              <button type="button" class="btn btn--ghost" id="form-cancel-btn">Batal</button>
+              <button type="submit" class="btn btn--primary" id="form-submit-btn">Simpan</button>
+            </div>
+          </form>
+        </section>
+
+      </main>
+    </div>
+
+    <!-- BOTTOM NAVIGATION (mobile only) -->
+    <nav class="bottom-nav" aria-label="Navigasi bawah">
+      <button class="bottom-nav__link is-active" data-view="dashboard" aria-label="Dashboard">
+        <span aria-hidden="true">🏠</span>
+      </button>
+      <button class="bottom-nav__link" data-view="inventory" aria-label="Daftar Inventaris">
+        <span aria-hidden="true">📦</span>
+      </button>
+      <button class="bottom-nav__link bottom-nav__link--fab" data-view="add" aria-label="Tambah Inventaris">
+        <span aria-hidden="true">➕</span>
+      </button>
+    </nav>
+  </div>
+
+  <!-- ============================= -->
+  <!-- MODAL: KONFIRMASI HAPUS -->
+  <!-- ============================= -->
+  <div id="confirm-modal" class="modal" hidden role="dialog" aria-modal="true" aria-labelledby="confirm-title">
+    <div class="modal__backdrop" id="confirm-backdrop"></div>
+    <div class="modal__box">
+      <h3 id="confirm-title">Apakah Anda yakin ingin menghapus data ini?</h3>
+      <p id="confirm-desc" class="modal__desc"></p>
+      <div class="modal__actions">
+        <button type="button" class="btn btn--ghost" id="confirm-cancel">Batal</button>
+        <button type="button" class="btn btn--danger" id="confirm-ok">Ya, Hapus</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST CONTAINER -->
+  <div id="toast-container" class="toast-container" aria-live="polite"></div>
+
+  <!-- ============================= -->
+  <!-- SCRIPTS (urutan penting: utils -> storage -> business logic -> ui -> app) -->
+  <!-- ============================= -->
+  <script src="js/splash.js"></script>
+  <script src="js/effects.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/storage.js"></script>
+  <script src="js/inventory.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
