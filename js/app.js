@@ -159,7 +159,7 @@
       const a = document.createElement('a');
       const dateStr = new Date().toISOString().slice(0, 10);
       a.href = url;
-      a.download = `data-sivera-tanggal${dateStr}.json`;
+      a.download = `data-sivera-tanggal-${dateStr}.json`;
       document.body.appendChild(a);
       a.click();
       a.remove();
